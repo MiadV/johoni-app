@@ -5,7 +5,7 @@ import { CheckSquareIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import axios from '~/lib/axios';
+import fetchAPI from '~/lib/fetch';
 import { LocationCombobox } from '~/components/location-combobox';
 import { StockPicker } from '~/components/order-form/stock-picker';
 import { OrderTable } from '~/components/order-table/order-table';
@@ -75,19 +75,21 @@ export function OrderForm() {
   }
 
   function onSubmit(data: OrderFormValues) {
-    axios
-      .post('/api/order', {
+    fetchAPI('/api/order', {
+      method: 'POST',
+      data: {
         location_id: data.location.id,
         description: data.description,
         items: data.items.map((item) => ({
           id: item.id,
           quantity: item.quantity,
         })),
-      })
+      },
+    })
       .then((res) => {
         toast({
           title: 'Order created',
-          description: res.data.message,
+          description: res.message,
         });
 
         form.reset();
@@ -96,7 +98,7 @@ export function OrderForm() {
         toast({
           variant: 'destructive',
           title: 'Error',
-          description: err.response.data.message,
+          description: err.data.message,
         });
       });
   }

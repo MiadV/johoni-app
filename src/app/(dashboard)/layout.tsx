@@ -2,21 +2,27 @@
 
 import { dashboardConfig } from '~/config/site';
 
-import { useAuth } from '~/hooks/auth';
 import { MainNav } from '~/components/main-nav';
 import { DashboardNav } from '~/components/nav';
 import { SiteFooter } from '~/components/site-footer';
 import { UserAccountNav } from '~/components/user-account-nav';
+import { useAuth } from '../../contexts/AuthContext';
+import { useRouter } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
 }
 
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
-  const { user } = useAuth({ middleware: 'auth' });
+  const router = useRouter();
+  const { user, isLoading } = useAuth();
+
+  if (!user && !isLoading) {
+    router.push('/login');
+  }
 
   if (!user) {
-    return <></>;
+    return <div>Loading...</div>;
   }
 
   return (

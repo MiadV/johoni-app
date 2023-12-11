@@ -1,6 +1,6 @@
+import env from '~/env.mjs';
 import { DownloadIcon } from 'lucide-react';
 
-import axios from '~/lib/axios';
 import { Button } from '~/components/ui/button';
 
 export default function OrderDownloadButton({
@@ -9,11 +9,18 @@ export default function OrderDownloadButton({
   order_id: number;
 }) {
   async function downloadOrder() {
-    const file = await axios<Blob>(`/api/order/${order_id}/export`, {
-      responseType: 'blob',
-    });
+    const JWT_TOKEN = localStorage.getItem('auth');
 
-    const url = window.URL.createObjectURL(file.data);
+    const file = await fetch(
+      `${env.NEXT_PUBLIC_BACKEND_URL}/api/order/${order_id}/export`,
+      {
+        headers: {
+          Authorization: `Bearer ${JWT_TOKEN}`,
+        },
+      },
+    ).then((res) => res.blob());
+
+    const url = window.URL.createObjectURL(file);
     const a = document.createElement('a');
     a.href = url;
     a.download = `order-${order_id}.xlsx`;

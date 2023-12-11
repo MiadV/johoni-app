@@ -2,12 +2,11 @@
 
 import * as React from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { isAxiosError } from 'axios';
+import env from '~/env.mjs';
 import { UploadIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import axios from '~/lib/axios';
 import { cn } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 import {
@@ -30,42 +29,44 @@ const stockImportSchema = z.object({
     .refine((file) => file[0]?.size <= 3_000_000, `Max file size is 3MB.`),
 });
 
-type FormData = z.infer<typeof stockImportSchema>;
+type FormDataType = z.infer<typeof stockImportSchema>;
 
 export function StockImportForm({ className, ...props }: StockImportFormProps) {
-  const form = useForm<FormData>({
+  const form = useForm<FormDataType>({
     resolver: zodResolver(stockImportSchema),
   });
 
-  const fileRef = form.register('stock', { required: true });
-
-  async function onSubmit(data: FormData) {
+  async function onSubmit(data: FormDataType) {
     const formData = new FormData();
     formData.append('stock', data.stock[0]);
 
-    axios
-      .post('/api/hq/stock/import', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          Accept: 'application/json',
-        },
-      })
-      .then((res: any) => {
+    const JWT_TOKEN = localStorage.getItem('auth');
+
+    fetch(`${env.NEXT_PUBLIC_BACKEND_URL}/api/hq/stock/import`, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        Accepts: 'application/json',
+        Authorization: `Bearer ${JWT_TOKEN}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((res) => {
         toast({
           title: 'Success',
           description: res.message,
         });
       })
-      .catch(async (err: any) => {
-        if (isAxiosError(err)) {
+      .catch(async (err) => {
+        if (err.data) {
           const error: {
             message: string;
             error: string;
-          } = await err.response?.data;
+          } = err.data;
           toast({
             variant: 'destructive',
             title: error.message,
-            description: error.error,
+            description: error.error + ' ' + error.message,
           });
         }
 
@@ -80,14 +81,23 @@ export function StockImportForm({ className, ...props }: StockImportFormProps) {
   return (
     <div className={cn('grid gap-6', className)} {...props}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          encType="multipart/form-data"
+          className="space-y-8"
+        >
           <FormField
             control={form.control}
             name="stock"
-            render={({}) => (
+            render={() => (
               <FormItem>
                 <FormControl>
-                  <Input type="file" accept=".xlsx, .xls, .csv" {...fileRef} />
+                  <Input
+                    id="stock"
+                    type="file"
+                    accept=".xlsx, .xls, .csv"
+                    {...form.register('stock')}
+                  />
                 </FormControl>
                 <FormDescription>Upload a .csv, .xls file.</FormDescription>
                 <FormMessage />

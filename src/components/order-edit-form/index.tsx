@@ -24,27 +24,35 @@ export type OrderStatus = z.infer<typeof orderEditFormSchema>['status'];
 
 export default function EditOrderForm() {
   const { id } = useParams();
-  const { data: orderDetails, isLoading } = useOrderByID(id + '');
+  const [status, setStatus] = useState<OrderStatus | undefined>();
 
-  const [status, setStatus] = useState<OrderStatus | undefined>(
-    orderDetails?.data.status,
-  );
+  const {
+    data: orderDetails,
+    isLoading,
+    mutate,
+  } = useOrderByID(id + '', {
+    onSuccess: (data) => {
+      setStatus(data.data.status);
+    },
+  });
 
   async function onSubmit(newStatus: OrderStatus) {
+    if (!orderDetails) return;
     if (status === newStatus) return;
 
     try {
       await updateOrderStatus(id + '', newStatus);
 
+      mutate({ data: { ...orderDetails.data, status: newStatus } });
+
       toast({
         title: 'Status updated',
       });
-    } catch (e: any) {
-      console.log(e);
+    } catch (err: any) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: e?.response?.data?.message,
+        description: err.data.message,
       });
     }
   }

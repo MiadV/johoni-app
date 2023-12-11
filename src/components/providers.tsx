@@ -2,7 +2,8 @@
 
 import { SWRConfig } from 'swr';
 
-import { fetcher } from '~/lib/axios';
+import { AuthProvider } from '~/contexts/AuthContext';
+import fetchAPI from '~/lib/fetch';
 import { ThemeProvider } from '~/components/theme-provider';
 
 function Providers({ children }: { children: React.ReactNode }) {
@@ -13,10 +14,10 @@ function Providers({ children }: { children: React.ReactNode }) {
           revalidateOnFocus: false,
           revalidateOnReconnect: false,
           shouldRetryOnError: false,
-          fetcher: fetcher,
+          fetcher: fetchAPI,
         }}
       >
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </SWRConfig>
     </ThemeProvider>
   );

@@ -1,6 +1,6 @@
 'use client';
 
-import { useAuth } from '~/hooks/auth';
+import { useAuth } from '~/contexts/AuthContext';
 import { Icons } from '~/components/icons';
 import {
   DropdownMenu,
@@ -18,7 +18,7 @@ interface UserAccountNavProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 export function UserAccountNav({ user }: UserAccountNavProps) {
-  const { logout } = useAuth({ middleware: 'auth' });
+  const { logout } = useAuth();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger>

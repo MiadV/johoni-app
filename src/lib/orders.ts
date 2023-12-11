@@ -1,7 +1,7 @@
 import useSWR from 'swr';
 import { BareFetcher, PublicConfiguration } from 'swr/_internal';
 
-import axios from '~/lib/axios';
+import fetchAPI from '~/lib/fetch';
 import { Location } from '~/lib/locations';
 import { Stock } from '~/lib/stock';
 import { OrderStatus } from '~/components/order-edit-form';
@@ -55,5 +55,8 @@ export function useOrderByID<
 }
 
 export function updateOrderStatus(id: string, status: OrderStatus) {
-  return axios.put(`/api/order/${id}`, { status });
+  return fetchAPI(`/api/order/${id}`, {
+    method: 'PUT',
+    data: { status },
+  });
 }

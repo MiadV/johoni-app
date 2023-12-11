@@ -1,11 +1,13 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { useAuth } from '~/hooks/auth';
+import { useAuth, User } from '~/contexts/AuthContext';
+import fetchAPI from '~/lib/fetch';
 import { cn } from '~/lib/utils';
 import { Icons } from '~/components/icons';
 import { buttonVariants } from '~/components/ui/button';
@@ -22,9 +24,15 @@ const userAuthSchema = z.object({
 type FormData = z.infer<typeof userAuthSchema>;
 
 export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
-  const { login } = useAuth({
-    middleware: 'guest',
-  });
+  const router = useRouter();
+
+  const { login, user } = useAuth();
+
+  React.useEffect(() => {
+    if (user) {
+      router.push('/');
+    }
+  }, [router, user]);
 
   const {
     register,
@@ -36,18 +44,18 @@ export function UserAuthForm({ className, ...props }: UserAuthFormProps) {
   });
 
   async function onSubmit(data: FormData) {
-    await login({
-      email: data.email,
-      password: data.password,
-      remember: true,
-      setErrors: (errors) => {
-        Object.keys(errors).forEach((key) => {
-          setError(key as keyof FormData, {
-            message: errors[key as keyof FormData],
-          });
+    await fetchAPI<{ user: User; token: string }, FormData>('/api/login', {
+      method: 'POST',
+      data,
+    })
+      .then((res) => {
+        login(res.user, res.token);
+      })
+      .catch((err) => {
+        setError('email', {
+          message: err?.data?.errors?.message[0],
         });
-      },
-    });
+      });
   }
 
   return (
