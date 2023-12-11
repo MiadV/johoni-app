@@ -9,6 +9,8 @@ import { TailwindIndicator } from '~/components/tailwind-indicator';
 import { Toaster } from '~/components/ui/toaster';
 import type { Metadata } from 'next';
 
+export const dynamic = 'error';
+
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
