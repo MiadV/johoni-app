@@ -1,12 +1,12 @@
-'use client';
+import { Metadata } from 'next';
 
 import EditOrderForm from '~/components/order-edit-form';
 import { DashboardHeader, DashboardShell } from '~/components/shell';
 
-// export const metadata: Metadata = {
-//   title: 'Dashboard',
-//   description: 'New Order',
-// };
+export const metadata: Metadata = {
+  title: 'Dashboard',
+  description: 'New Order',
+};
 
 export default function OrderDetailsPage() {
   return (

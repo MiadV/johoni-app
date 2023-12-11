@@ -1,13 +1,14 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { dashboardConfig } from '~/config/site';
 
+import { useAuth } from '~/contexts/AuthContext';
+import { LoadingSpinner } from '~/components/loading-spinner';
 import { MainNav } from '~/components/main-nav';
 import { DashboardNav } from '~/components/nav';
 import { SiteFooter } from '~/components/site-footer';
 import { UserAccountNav } from '~/components/user-account-nav';
-import { useAuth } from '../../contexts/AuthContext';
-import { useRouter } from 'next/navigation';
 
 interface DashboardLayoutProps {
   children?: React.ReactNode;
@@ -22,7 +23,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   }
 
   if (!user) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner />;
   }
 
   return (
