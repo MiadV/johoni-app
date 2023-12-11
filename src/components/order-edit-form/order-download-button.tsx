@@ -1,6 +1,7 @@
 import env from '~/env.mjs';
 import { DownloadIcon } from 'lucide-react';
 
+import { localStorage } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 
 export default function OrderDownloadButton({
@@ -9,7 +10,7 @@ export default function OrderDownloadButton({
   order_id: number;
 }) {
   async function downloadOrder() {
-    const JWT_TOKEN = localStorage.getItem('auth');
+    const JWT_TOKEN = localStorage()?.getItem('auth');
 
     const file = await fetch(
       `${env.NEXT_PUBLIC_BACKEND_URL}/api/order/${order_id}/export`,

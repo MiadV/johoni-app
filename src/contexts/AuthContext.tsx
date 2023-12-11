@@ -13,6 +13,7 @@ import { useRouter } from 'next/navigation';
 import useSWR, { mutate } from 'swr';
 
 import fetchAPI from '~/lib/fetch';
+import { localStorage } from '~/lib/utils';
 
 export type User = {
   id: number;
@@ -49,7 +50,7 @@ export const AuthProvider: React.FC<{
   const [isLoading, setIsLoading] = useState(true);
   const [user, setUser] = useState<User>();
 
-  const JWT_TOKEN = localStorage.getItem('auth');
+  const JWT_TOKEN = localStorage()?.getItem('auth');
 
   const {
     isLoading: isFetching,
@@ -63,7 +64,7 @@ export const AuthProvider: React.FC<{
     onError: (error) => {
       // 403: unauthorized - expired/invalid token.
       if (error.status === 401) {
-        localStorage.removeItem('auth');
+        localStorage()?.removeItem('auth');
 
         // clear cache
         mutate(() => true, undefined, { revalidate: false });
@@ -92,7 +93,7 @@ export const AuthProvider: React.FC<{
 
   const login = useCallback(
     (userResponse: User, token: string, cb?: () => void) => {
-      localStorage.setItem('auth', token);
+      localStorage()?.setItem('auth', token);
 
       mutateUser({ data: userResponse });
       setUser(userResponse);
@@ -106,7 +107,7 @@ export const AuthProvider: React.FC<{
     fetchAPI(`/api/logout`, {
       method: 'POST',
     }).then(() => {
-      localStorage.removeItem('auth');
+      localStorage()?.removeItem('auth');
 
       // clear cache
       mutate(() => true, undefined, { revalidate: false });

@@ -1,5 +1,7 @@
 import { env } from '~/env.mjs';
 
+import { localStorage } from './utils';
+
 type CustomErrorType = Error & {
   data?: unknown;
   status: number;
@@ -9,7 +11,7 @@ export default async function fetchAPI<T = any, P = any>(
   url: string = '',
   options: RequestInit & { data?: P; body?: any } = {},
 ): Promise<T> {
-  const JWT_TOKEN = localStorage.getItem('auth');
+  const JWT_TOKEN = localStorage()?.getItem('auth');
 
   const res = await fetch(`${env.NEXT_PUBLIC_BACKEND_URL}${url}`, {
     ...options,
@@ -28,7 +30,7 @@ export default async function fetchAPI<T = any, P = any>(
     // 401: unauthorized - expired/invalid token
     if (res.status === 401) {
       // remove token
-      localStorage.removeItem('auth');
+      localStorage()?.removeItem('auth');
       // redirect to login
       window.location.href = '/login';
     }

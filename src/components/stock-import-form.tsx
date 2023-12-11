@@ -7,7 +7,7 @@ import { UploadIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
-import { cn } from '~/lib/utils';
+import { cn, localStorage } from '~/lib/utils';
 import { Button } from '~/components/ui/button';
 import {
   Form,
@@ -40,7 +40,7 @@ export function StockImportForm({ className, ...props }: StockImportFormProps) {
     const formData = new FormData();
     formData.append('stock', data.stock[0]);
 
-    const JWT_TOKEN = localStorage.getItem('auth');
+    const JWT_TOKEN = localStorage()?.getItem('auth');
 
     fetch(`${env.NEXT_PUBLIC_BACKEND_URL}/api/hq/stock/import`, {
       method: 'POST',
